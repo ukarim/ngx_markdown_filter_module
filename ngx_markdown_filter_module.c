@@ -154,7 +154,7 @@ static ngx_int_t ngx_markdown_header_filter(ngx_http_request_t *r)
 
         ngx_http_set_ctx(r, ctx, ngx_markdown_filter_module);
 
-        ngx_str_t mime = ngx_string("text/html");
+        ngx_str_t mime = ngx_string("text/html;charset=utf-8");
         r->headers_out.content_type = mime;
         r->main_filter_need_in_memory = 1;
         ngx_http_clear_content_length(r);
@@ -193,6 +193,9 @@ static ngx_int_t ngx_markdown_body_filter(ngx_http_request_t *r, ngx_chain_t *ch
         ngx_buf_t *buf = cl->buf;
 
         cmark_parser_feed(parser, (char *)(buf->pos), ngx_buf_size(buf));
+
+        buf->pos = buf->last;
+        buf->flush = 0;
 
         if (buf->last_buf) {
             last = 1;
