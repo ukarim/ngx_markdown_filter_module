@@ -1,15 +1,25 @@
-# ngx_markdown_filter_module
+## ngx_markdown_filter_module
 
-Nginx module that converts markdown files to html.
+The `ngx_markdown_filter_module` module is a filter that transforms markdown files to html format.
 
-### Usage
+This module utilizes the [cmark](https://github.com/commonmark/cmark) library.
+
+### Example configuration
 
 ```
-location ~* \.md {
+location ~ \.md {
     markdown_filter on;
 }
 ```
 
-### Dependencies
+This works on proxy locations as well.
 
-* https://github.com/commonmark/cmark
+### Directives
+
+```
+Syntax:  markdown_filter on;
+
+Default: markdown_filter off;
+
+Context: location
+```
