@@ -9,6 +9,7 @@ This module utilizes the [cmark](https://github.com/commonmark/cmark) library.
 ```
 location ~ \.md {
     markdown_filter on;
+    markdown_template html/template.html;
 }
 ```
 
@@ -18,8 +19,10 @@ This works on proxy locations as well.
 
 ```
 Syntax:  markdown_filter on;
+Context: location
+```
 
-Default: markdown_filter off;
-
+```
+Syntax:  markdown_template html/template.html;
 Context: location
 ```
