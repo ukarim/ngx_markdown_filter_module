@@ -229,11 +229,8 @@ static ngx_int_t ngx_markdown_header_filter(ngx_http_request_t *r)
         cln->data = parser;
 
         ngx_http_set_ctx(r, ctx, ngx_markdown_filter_module);
-
-        ngx_str_t mime = ngx_string("text/html;charset=utf-8");
-        r->headers_out.content_type = mime;
         r->main_filter_need_in_memory = 1;
-        ngx_http_clear_content_length(r);
+        return NGX_OK;
     }
     return ngx_http_next_header_filter(r);
 }
@@ -286,6 +283,8 @@ static ngx_int_t ngx_markdown_body_filter(ngx_http_request_t *r, ngx_chain_t *ch
             return NGX_ERROR;
         }
 
+        size_t html_len = strlen(html);
+
         ngx_pool_cleanup_t *cln = ngx_pool_cleanup_add(r->pool, 0);
         if (cln == NULL) {
             ngx_free(html);
@@ -332,7 +331,7 @@ static ngx_int_t ngx_markdown_body_filter(ngx_http_request_t *r, ngx_chain_t *ch
             return NGX_ERROR;
         }
         content_buf->pos = (u_char *) html;
-        content_buf->last = content_buf->pos + strlen(html);
+        content_buf->last = content_buf->pos + html_len;
         content_buf->memory = 1;
         content_buf->last_buf = footer_missing;
         content_buf->last_in_chain = footer_missing;
@@ -369,7 +368,19 @@ static ngx_int_t ngx_markdown_body_filter(ngx_http_request_t *r, ngx_chain_t *ch
             content_chain->next = footer_chain;
         }
 
-        return ngx_http_next_body_filter(r, out_chain);
+
+        // update content type
+        ngx_str_t mime = ngx_string("text/html;charset=utf-8");
+        r->headers_out.content_type = mime;
+
+        // update content length
+        r->headers_out.content_length_n = html_len;
+
+        ngx_int_t res = ngx_http_next_header_filter(r);
+        if (res == NGX_OK) {
+            res = ngx_http_next_body_filter(r, out_chain);
+        }
+        return res;
     }
 
     return NGX_OK;
