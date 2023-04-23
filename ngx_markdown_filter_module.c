@@ -2,7 +2,13 @@
 #include <ngx_core.h>
 #include <ngx_http.h>
 
-#include <cmark.h>
+#ifdef WITH_CMARK_GFM
+    #include <cmark-gfm.h>
+    #include <cmark-gfm-extension_api.h>
+    #include <cmark-gfm-core-extensions.h>
+#else
+    #include <cmark.h>
+#endif
 
 
 // pointers to next handlers
@@ -218,6 +224,15 @@ static ngx_int_t ngx_markdown_header_filter(ngx_http_request_t *r)
         if (parser == NULL) {
             return NGX_ERROR;
         }
+
+#ifdef WITH_CMARK_GFM
+        cmark_gfm_core_extensions_ensure_registered();
+        cmark_syntax_extension *ext = cmark_find_syntax_extension("table");
+        if (ext != NULL) {
+            cmark_parser_attach_syntax_extension(parser, ext);
+        }
+#endif
+
         ctx->parser = parser;
 
         ngx_pool_cleanup_t *cln = ngx_pool_cleanup_add(r->pool, 0);
@@ -279,7 +294,13 @@ static ngx_int_t ngx_markdown_body_filter(ngx_http_request_t *r, ngx_chain_t *ch
     }
     if (last) {
         cmark_node *root = cmark_parser_finish(parser);
+
+#ifdef WITH_CMARK_GFM
+        char *html = cmark_render_html(root, CMARK_OPT_DEFAULT, NULL);
+#else
         char *html = cmark_render_html(root, CMARK_OPT_DEFAULT);
+#endif
+
         cmark_node_free(root); // remove document tree
 
         if (html == NULL) {
