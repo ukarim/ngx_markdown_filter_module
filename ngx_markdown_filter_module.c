@@ -139,6 +139,7 @@ static char *ngx_conf_set_template(ngx_conf_t *cf, ngx_command_t *cmd, void *con
     ngx_file_t file;
     file.fd = fd;
     file.info = fi;
+    file.log = cf->log;
 
     ngx_int_t n = ngx_read_file(&file, template, fi.st_size, 0);
     template[fi.st_size] = '\0';
