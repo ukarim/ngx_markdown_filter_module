@@ -1,7 +1,7 @@
 ngx_module_type=HTTP_FILTER
 ngx_module_name=ngx_markdown_filter_module
 ngx_module_srcs="$ngx_addon_dir/ngx_markdown_filter_module.c"
-ngx_module_libs=-l:libcmark.so
+ngx_module_libs=-lcmark
 
 . auto/module
 
