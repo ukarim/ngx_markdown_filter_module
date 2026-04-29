@@ -94,7 +94,7 @@ fork with table extension, supported by Github.
 5. Run `configure` script (see nginx src) and build nginx
 
 ```
-> ./configure --add-module=/path/to/ngx_markdown_filter_module --with-cc-opt=-DWITH_CMARK_GFM=1
+> ./configure --add-module=/path/to/ngx_markdown_filter_module
 > make
 ```
 
